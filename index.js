@@ -1,6 +1,5 @@
-/**
- * @format
- */
+import 'react-native-reanimated'; // 👈 first!
+import 'react-native-gesture-handler'; // 👈 second!
 
 import {AppRegistry} from 'react-native';
 import App from './App';
