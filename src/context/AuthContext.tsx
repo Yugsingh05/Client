@@ -43,7 +43,21 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    return true;
+    console.log('Login server log:', email, password);
+
+    try {
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
+        email,
+        password,
+      });
+
+      console.log('login Server response:', res.data);
+
+      return !!res.data?.success; // cleaner way to return true/false
+    } catch (error: any) {
+      console.error(' Login error:', error?.response?.data || error.message);
+      return false;
+    }
   };
 
   const logout = async (): Promise<void> => {

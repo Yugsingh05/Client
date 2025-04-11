@@ -33,8 +33,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
     if (success) {
       Alert.alert('Success', 'Sign-up successful!');
+      navigation.navigate('Login');
     }
     else {
+      console.log(success);
       Alert.alert('Error', 'Sign-up failed. Please try again.');
     }
   };

@@ -18,7 +18,7 @@ const RootNavigation = () => {
     <Stack.Navigator initialRouteName="Login">
       <Stack.Screen name="HomeScreen" component={HomeScreen} options={{headerShown : false}} />
       <Stack.Screen name="Login" component={LoginScreen} options={{headerShown : false}} />
-      <Stack.Screen name="SignUpScreen" component={SIgnUpScreen}/>
+      <Stack.Screen name="SignUpScreen" component={SIgnUpScreen} options={{headerShown : false}}/>
       <Stack.Screen name="ReciepeDetails" component={ReciepeDetails}  />
     </Stack.Navigator>
   );

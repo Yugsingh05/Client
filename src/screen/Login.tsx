@@ -1,10 +1,11 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Alert } from 'react-native';
 import { RootStackParams } from '../navigation/RootNavigation';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AuthContext } from '../context/AuthContext';
 
 type loginType = NativeStackNavigationProp<RootStackParams, 'Login'>;
 
@@ -19,9 +20,26 @@ const LoginSchema = Yup.object().shape({
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const {login} = useContext(AuthContext);
 
-  const handleLogin = (values: { email: string; password: string }) => {
+  const handleLogin = async(values: { email: string; password: string }) => {
     console.log(values);
+
+   try {
+    const res = await login(values.email, values.password);
+
+    console.log(res);
+    if(res){
+      Alert.alert('Success', 'Login successful!');
+    }
+    else {
+      Alert.alert('Error', 'Login failed. Please try again.');
+    }
+   } catch (error) {
+    Alert.alert('Error', 'Login failed. Please try again.');
+   }
+
+
     // TODO: Login logic
   };
 
