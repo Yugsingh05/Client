@@ -23,7 +23,9 @@ const SignUpSchema = Yup.object().shape({
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const {signUp} = useContext(AuthContext)
+  const {signUp, userId} = useContext(AuthContext);
+
+  if(userId) navigation.navigate('HomeScreen');
 
   const handleSignup =async (values: { email: string; password: string }) => {
     console.log(values);

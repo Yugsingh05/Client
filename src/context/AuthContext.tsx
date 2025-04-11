@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, {createContext, useState} from 'react';
 
@@ -53,7 +54,18 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       console.log('login Server response:', res.data);
 
-      return !!res.data?.success; // cleaner way to return true/false
+      if(!res.data?.success) return false;
+
+      const {token , userId} = res.data;
+
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('userId', userId);
+
+      setToken(token);
+      setUserId(userId);
+
+      return true; // cleaner way to return true/false
+
     } catch (error: any) {
       console.error(' Login error:', error?.response?.data || error.message);
       return false;
@@ -61,7 +73,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   };
 
   const logout = async (): Promise<void> => {
-    return;
+     setToken(null);
+     setUserId(null);
+     await AsyncStorage.removeItem('token');
+     await AsyncStorage.removeItem('userId');
   };
 
   return (
