@@ -1,10 +1,11 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Alert } from 'react-native';
 import { RootStackParams } from '../navigation/RootNavigation';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AuthContext } from '../context/AuthContext';
 
 
 type signupType = NativeStackNavigationProp<RootStackParams, 'SignUpScreen'>;
@@ -22,10 +23,20 @@ const SignUpSchema = Yup.object().shape({
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const {signUp} = useContext(AuthContext)
 
-  const handleSignup = (values: { email: string; password: string }) => {
+  const handleSignup =async (values: { email: string; password: string }) => {
     console.log(values);
     // TODO: Sign-up logic
+    const success = await signUp(values.email, values.password);
+    console.log('sign up response',success);
+
+    if (success) {
+      Alert.alert('Success', 'Sign-up successful!');
+    }
+    else {
+      Alert.alert('Error', 'Sign-up failed. Please try again.');
+    }
   };
 
   return (
