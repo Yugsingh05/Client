@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import React, {createContext, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 
 const API_URL = 'http://10.0.2.2:5000';
 
@@ -12,6 +12,8 @@ interface AuthContextData {
   signUp: (email: string, password: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  isAuthenticated: boolean;
+  checkAuth: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -23,7 +25,31 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 }) => {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const checkAuth = async () => {
+    try {
+      const istoken = await AsyncStorage.getItem('token');
+      const isuserId = await AsyncStorage.getItem('userId');
+      if (istoken && isuserId) {
+        setToken(token);
+        setUserId(userId);
+        setIsAuthenticated(true);
+        return true;
+      } else return false;
+    } catch (error) {
+      console.error('Error checking authentication status:', error);
+      return false;
+    } finally{
+      setIsLoading(false)
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   const signUp = async (email: string, password: string): Promise<boolean> => {
     console.log('Sign up server log:', email, password);
@@ -54,18 +80,18 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       console.log('login Server response:', res.data);
 
-      if(!res.data?.success) return false;
+      if (!res.data?.success) return false;
 
-      const {token , userId} = res.data;
+      const {token, userId} = res.data;
 
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userId', userId);
 
       setToken(token);
       setUserId(userId);
+      setIsAuthenticated(true);
 
       return true; // cleaner way to return true/false
-
     } catch (error: any) {
       console.error(' Login error:', error?.response?.data || error.message);
       return false;
@@ -73,15 +99,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   };
 
   const logout = async (): Promise<void> => {
-     setToken(null);
-     setUserId(null);
-     await AsyncStorage.removeItem('token');
-     await AsyncStorage.removeItem('userId');
+    setToken(null);
+    setUserId(null);
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userId');
+    setIsAuthenticated(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{token, isLoading, userId, signUp, login, logout}}>
+      value={{token, isLoading, userId, signUp, login, logout,isAuthenticated,checkAuth}}>
       {children}
     </AuthContext.Provider>
   );

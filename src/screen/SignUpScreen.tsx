@@ -1,5 +1,5 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Alert } from 'react-native';
 import { RootStackParams } from '../navigation/RootNavigation';
 import { Formik } from 'formik';
@@ -25,7 +25,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const {signUp, userId} = useContext(AuthContext);
 
-  if(userId) navigation.navigate('HomeScreen');
+
+  useEffect(() => {
+    if(userId) navigation.navigate('HomeScreen');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   const handleSignup =async (values: { email: string; password: string }) => {
     console.log(values);

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Alert } from 'react-native';
 import { RootStackParams } from '../navigation/RootNavigation';
 import { Formik } from 'formik';
@@ -20,10 +21,12 @@ const LoginSchema = Yup.object().shape({
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const {login,userId} = useContext(AuthContext);
+  const {login,userId } = useContext(AuthContext);
   console.log(userId);
 
-  if(userId) navigation.navigate('HomeScreen');
+ useEffect(() => {
+    if(userId) navigation.navigate('HomeScreen');
+  },[]);
 
   const handleLogin = async(values: { email: string; password: string }) => {
     console.log(values);
@@ -43,8 +46,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     Alert.alert('Error', 'Login failed. Please try again.');
    }
 
-
-    // TODO: Login logic
   };
 
   return (
