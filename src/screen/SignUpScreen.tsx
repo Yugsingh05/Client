@@ -1,7 +1,11 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { RootStackParams } from '../navigation/RootNavigation';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 type signupType = NativeStackNavigationProp<RootStackParams, 'SignUpScreen'>;
 
@@ -9,13 +13,19 @@ interface SignUpScreenProps {
   navigation: signupType;
 }
 
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+const SignUpSchema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
 
-  const handleSignup = () => {
+const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSignup = (values: { email: string; password: string }) => {
+    console.log(values);
     // TODO: Sign-up logic
-    console.log(email,password);
   };
 
   return (
@@ -26,27 +36,51 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       <View style={styles.card}>
         <Text style={styles.title}>Create Account</Text>
 
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor="#aaa"
-          keyboardType="email-address"
-          style={styles.input}
-        />
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          validationSchema={SignUpSchema}
+          onSubmit={handleSignup}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            <>
+              <TextInput
+                value={values.email}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                placeholder="Email"
+                placeholderTextColor="#aaa"
+                keyboardType="email-address"
+                style={styles.input}
+              />
+              {touched.email && errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              )}
 
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          placeholderTextColor="#aaa"
-          secureTextEntry
-          style={styles.input}
-        />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  placeholder="Password"
+                  placeholderTextColor="#aaa"
+                  secureTextEntry={!showPassword}
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                />
+                <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                <MaterialCommunityIcons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
 
-        <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-          <Text style={styles.signupText}>SIGN UP</Text>
-        </TouchableOpacity>
+                </Pressable>
+              </View>
+              {touched.password && errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
+
+              <TouchableOpacity style={styles.signupButton} onPress={handleSubmit as any}>
+                <Text style={styles.signupText}>SIGN UP</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </Formik>
 
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.loginRedirect}>
@@ -95,6 +129,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+  },
+  eyeIcon: {
+    paddingHorizontal: 8,
+  },
   signupButton: {
     backgroundColor: '#1A73E8',
     paddingVertical: 14,
@@ -116,5 +161,11 @@ const styles = StyleSheet.create({
   loginLink: {
     color: '#1A73E8',
     fontWeight: '600',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 13,
+    marginBottom: 8,
+    marginLeft: 4,
   },
 });
