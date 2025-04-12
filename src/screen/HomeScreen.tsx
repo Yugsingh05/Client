@@ -37,7 +37,7 @@ __v : number;
 }
 
 const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: RecipeInterface , HandleDeleteRecipe : Function , handleEditRecipe : Function }) => (
-  <View style={styles.recipeCard}>
+  <TouchableOpacity style={styles.recipeCard} onPress={() => console.log(item._id)}>
     <Text style={styles.recipeTitle}>{item.title}</Text>
     <Text style={styles.recipeDescription}>{item.description}</Text>
 
@@ -68,7 +68,7 @@ const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: Recip
         <Icon name="trash-outline" size={20} color="#ef4444" />
       </TouchableOpacity>
     </View>
-  </View>
+  </TouchableOpacity>
 );
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
@@ -160,20 +160,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       </View>
 
       {/* 🔵 Body */}
-      <View style={styles.body}>
-        <Text style={styles.title}>HomeScreen</Text>
-        <TouchableOpacity onPress={() => handleGetReciepe()}>
-          <Text >get Recipe</Text>
-        </TouchableOpacity>
-      </View>
-      
+    {Recipes.length === 0 && <Text style={styles.noRecipesText}>No recipes found.</Text>}
+
       {Recipes && (
   <FlatList
     data={Recipes}
     keyExtractor={(item) => item._id}
     contentContainerStyle={styles.recipeList}
     renderItem={({ item }) => (
-      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} handleEditRecipe={handleEditRecipe} />
+      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} handleEditRecipe={handleEditRecipe}  />
     )}
   />
 )}
@@ -181,7 +176,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
 
       <Modal
       visible={isvisible} transparent={true} onRequestClose={() => setIsVisible(false)}>
-        <CreateRecipeForm onCancel={() => setIsVisible(false)} RecipeToUpdate={RecipeToUpdate || undefined}  />
+        <CreateRecipeForm onCancel={() => setIsVisible(false)} RecipeToUpdate={RecipeToUpdate || undefined} setRecipeToUpdate={setRecipeToUpdate} />
       </Modal>
     </View>
   );
@@ -230,13 +225,14 @@ const styles = StyleSheet.create({
   },
   recipeList: {
     paddingHorizontal: 15,
+    paddingTop: 10,
     paddingBottom: 20,
   },
   recipeCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
-    marginBottom: 15,
+    marginVertical: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
@@ -292,5 +288,11 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 6,
   },
-
+  noRecipesText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1e3a8a',
+    marginTop: 20,
+    textAlign: 'center',
+  },
 });

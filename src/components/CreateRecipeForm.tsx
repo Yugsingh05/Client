@@ -26,9 +26,10 @@ const recipeSchema = Yup.object().shape({
 interface CreateRecipeFormProps {
   onCancel: () => void;
   RecipeToUpdate?: Recipe;
+  setRecipeToUpdate?: React.Dispatch<React.SetStateAction<Recipe | null>>;
 }
 
-const CreateRecipeForm: React.FC<CreateRecipeFormProps> = ({ onCancel, RecipeToUpdate }) => {
+const CreateRecipeForm: React.FC<CreateRecipeFormProps> = ({ onCancel, RecipeToUpdate ,setRecipeToUpdate}) => {
   const { createReceipe, updateRecipe } = useContext(RecipeContext);
   const isUpdate = !!RecipeToUpdate;
 
@@ -59,6 +60,7 @@ const CreateRecipeForm: React.FC<CreateRecipeFormProps> = ({ onCancel, RecipeToU
       if (response?.success) {
         Alert.alert('Success', `Recipe ${isUpdate ? 'updated' : 'created'} successfully!`);
         formik.resetForm();
+        setRecipeToUpdate(null);
         onCancel();
       } else {
         Alert.alert('Error', 'Something went wrong. Please try again.');
@@ -124,7 +126,10 @@ const CreateRecipeForm: React.FC<CreateRecipeFormProps> = ({ onCancel, RecipeToU
           <TouchableOpacity style={styles.submitBtn} onPress={() => formik.handleSubmit()}>
             <Text style={styles.btnText}>{isUpdate ? 'Update' : 'Submit'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+            setRecipeToUpdate(null);
+            onCancel();
+          }}>
             <Text style={styles.btnText}>Cancel</Text>
           </TouchableOpacity>
         </View>
