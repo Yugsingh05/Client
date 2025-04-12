@@ -36,7 +36,7 @@ interface RecipeInterface {
 __v : number;
 }
 
-const RenderItem = ({ item } : { item: RecipeInterface }) => (
+const RenderItem = ({ item,HandleDeleteRecipe } : { item: RecipeInterface , HandleDeleteRecipe : Function }) => (
   <View style={styles.recipeCard}>
     <Text style={styles.recipeTitle}>{item.title}</Text>
     <Text style={styles.recipeDescription}>{item.description}</Text>
@@ -64,7 +64,7 @@ const RenderItem = ({ item } : { item: RecipeInterface }) => (
       <TouchableOpacity style={styles.actionIcon} onPress={() => console.log('Edit pressed')}>
         <Icon name="pencil-outline" size={20} color="#3b82f6" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.actionIcon} onPress={() => console.log('Delete pressed')}>
+      <TouchableOpacity style={styles.actionIcon} onPress={() => HandleDeleteRecipe({id : item._id})}>
         <Icon name="trash-outline" size={20} color="#ef4444" />
       </TouchableOpacity>
     </View>
@@ -74,7 +74,7 @@ const RenderItem = ({ item } : { item: RecipeInterface }) => (
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const { token, logout} = useContext(AuthContext);
   const [isvisible,setIsVisible] = useState(false);
-  const {getRecipes,isLoading} = useContext(RecipeContext);
+  const {getRecipes,isLoading,deleteRecipes} = useContext(RecipeContext);
   const [Recipes,setRecipes] = useState<RecipeInterface[]>([]);
 
   useEffect(() => {
@@ -101,20 +101,31 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     if(res.success){
       setRecipes(res.data);
     }
-  }
+  };
 
   useEffect(() => {
 
     if(!isLoading){
       handleGetReciepe();
     }
+  },[isLoading]);
+
+
+  const HandleDeleteRecipe = async ({id } : {id : string}) => {
+
+    console.log(id);
+    Alert.alert('Delete Recipe', 'Are you sure you want to delete this recipe?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Delete',
+        onPress: async () => {
+          const res = await deleteRecipes(id);
+        console.log(res);
+        },
+      },
+    ])
     
-  },[isLoading])
-
-  
-  
-
-  
+  }
 
   return (
     <View style={styles.container}>
@@ -149,7 +160,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     keyExtractor={(item) => item._id}
     contentContainerStyle={styles.recipeList}
     renderItem={({ item }) => (
-      <RenderItem item={item} />
+      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} />
     )}
   />
 )}

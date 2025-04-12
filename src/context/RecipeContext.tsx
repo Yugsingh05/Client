@@ -24,6 +24,7 @@ export interface RecipeData {
 
   getRecipes : () => Promise<void>;
   isLoading : boolean;
+  deleteRecipes : (id : string) => Promise<boolean>;
 }
 
 export const RecipeContext = createContext<RecipeData>({} as RecipeData);
@@ -114,6 +115,42 @@ export const RecipeProvider: React.FC<{children: ReactNode}> = ({children}) => {
     }
       };
 
+      const deleteRecipes = async (id : string) => {
+        setIsLoading(true);
+        if (!token) {
+          console.error('Token not found');
+          setIsLoading(false);
+          return false;
+        }
+
+        try {
+          const res = await axios.delete(`${API_URL}/api/recipes/delete-recipe/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log('Response:', res.data);
+          return res.data; // return if needed
+        }catch (error) {
+          if (axios.isAxiosError(error)) {
+            console.error('Axios error!');
+            if (error.response) {
+              console.error('Status:', error.response.status);
+              console.error('Data:', error.response.data);
+              console.error('Headers:', error.response.headers);
+            } else if (error.request) {
+              console.error('No response received:', error.request);
+            } else {
+              console.error('Axios error message:', error.message);
+            }
+          } else {
+            console.error('Non-Axios error:', error);
+          }
+        }finally{
+          setIsLoading(false);
+        }
+      };
+
 
       useEffect(() => {
        async function fetchData() {
@@ -126,7 +163,7 @@ export const RecipeProvider: React.FC<{children: ReactNode}> = ({children}) => {
       }, []);
 
   return (
-    <RecipeContext.Provider value={{recipes, createReceipe , getRecipes,isLoading}}>
+    <RecipeContext.Provider value={{recipes, createReceipe , getRecipes,isLoading , deleteRecipes}}>
       {children}
     </RecipeContext.Provider>
   );
