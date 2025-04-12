@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Make sure this is inst
 import CreateRecipeForm from '../components/CreateRecipeForm';
 import { RecipeContext } from '../context/RecipeContext';
 
+
 type HomeScreenNavigationProps = NativeStackNavigationProp<
   RootStackParams,
   'HomeScreen'
@@ -34,6 +35,41 @@ interface RecipeInterface {
   createdAt: string;
 __v : number;
 }
+
+const RenderItem = ({ item } : { item: RecipeInterface }) => (
+  <View style={styles.recipeCard}>
+    <Text style={styles.recipeTitle}>{item.title}</Text>
+    <Text style={styles.recipeDescription}>{item.description}</Text>
+
+    <View style={styles.recipeFooter}>
+      <Text style={[
+        styles.difficulty,
+        styles[`difficulty_${item.difficulty.toLowerCase()}` as 'difficulty_easy' | 'difficulty_medium' | 'difficulty_hard']
+      ]}>
+        {item.difficulty}
+      </Text>
+      <Text style={styles.updatedAt}>
+        {new Date(item.createdAt).toLocaleString(undefined, {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        })}
+      </Text>
+    </View>
+
+    <View style={styles.actionButtons}>
+      <TouchableOpacity style={styles.actionIcon} onPress={() => console.log('Edit pressed')}>
+        <Icon name="pencil-outline" size={20} color="#3b82f6" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.actionIcon} onPress={() => console.log('Delete pressed')}>
+        <Icon name="trash-outline" size={20} color="#ef4444" />
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const { token, logout} = useContext(AuthContext);
@@ -75,6 +111,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     
   },[isLoading])
 
+  
+  
+
+  
+
   return (
     <View style={styles.container}>
       {/* 🔵 Custom Header */}
@@ -97,39 +138,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       {/* 🔵 Body */}
       <View style={styles.body}>
         <Text style={styles.title}>HomeScreen</Text>
-        <TouchableOpacity onPress={() => hanndleGetReciepe()}>
+        <TouchableOpacity onPress={() => handleGetReciepe()}>
           <Text >get Recipe</Text>
         </TouchableOpacity>
       </View>
       
-      {Recipes && <FlatList
-  data={Recipes}
-  keyExtractor={(item) => item._id}
-  contentContainerStyle={styles.recipeList}
-  renderItem={({item}) => (
-    <View style={styles.recipeCard}>
-      <Text style={styles.recipeTitle}>{item.title}</Text>
-      <Text style={styles.recipeDescription}>{item.description}</Text>
-      <View style={styles.recipeFooter}>
-        <Text style={[styles.difficulty, styles[`difficulty_${item.difficulty.toLowerCase()}` as 'difficulty_easy' | 'difficulty_medium' | 'difficulty_hard']]}>
-          {item.difficulty}
-        </Text>
-        <Text style={styles.updatedAt}>
-  {new Date(item.createdAt).toLocaleString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  })}
-</Text>
+      {Recipes && (
+  <FlatList
+    data={Recipes}
+    keyExtractor={(item) => item._id}
+    contentContainerStyle={styles.recipeList}
+    renderItem={({ item }) => (
+      <RenderItem item={item} />
+    )}
+  />
+)}
 
-      </View>
-    </View>
-  )}
-/>
-}
 
       <Modal
       visible={isvisible} transparent={true} onRequestClose={() => setIsVisible(false)}>
@@ -232,6 +256,17 @@ const styles = StyleSheet.create({
   updatedAt: {
     fontSize: 12,
     color: '#6b7280', // Light gray
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  actionIcon: {
+    marginLeft: 10,
+    backgroundColor: '#f1f5f9',
+    padding: 8,
+    borderRadius: 6,
   },
 
 });
