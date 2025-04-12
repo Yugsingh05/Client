@@ -1,10 +1,25 @@
-import React from 'react'
-import { Text } from 'react-native'
+import React from 'react';
+import { Text, View } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParams } from '../navigation/RootNavigation';
 
-const ReciepeDetails  : React.FC = () => {
-  return (
-    <Text>ReciepeDetails</Text>
-  )
+type RecipeDetailsNavigationProp = StackNavigationProp<RootStackParams, 'ReciepeDetails'>;
+type RecipeDetailsRouteProp = RouteProp<RootStackParams, 'ReciepeDetails'>;
+
+interface RecipeDetailsProps {
+  navigation: RecipeDetailsNavigationProp;
+  route: RecipeDetailsRouteProp;
 }
 
-export default ReciepeDetails
+const ReciepeDetails: React.FC<RecipeDetailsProps> = ({ route }) => {
+  const { recipeId } = route.params;
+
+  return (
+    <View>
+      <Text>Recipe Details - ID: {recipeId}</Text>
+    </View>
+  );
+};
+
+export default ReciepeDetails;

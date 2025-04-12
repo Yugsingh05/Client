@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {
   Alert,
-    Text,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -14,8 +14,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParams} from '../navigation/RootNavigation';
 import Icon from 'react-native-vector-icons/Ionicons'; // Make sure this is installed
 import CreateRecipeForm from '../components/CreateRecipeForm';
-import { RecipeContext } from '../context/RecipeContext';
-
+import {RecipeContext} from '../context/RecipeContext';
 
 type HomeScreenNavigationProps = NativeStackNavigationProp<
   RootStackParams,
@@ -33,19 +32,40 @@ interface RecipeInterface {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   createdBy: string;
   createdAt: string;
-__v : number;
+  __v: number;
 }
 
-const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: RecipeInterface , HandleDeleteRecipe : Function , handleEditRecipe : Function }) => (
-  <TouchableOpacity style={styles.recipeCard} onPress={() => console.log(item._id)}>
+const RenderItem = ({
+  item,
+  HandleDeleteRecipe,
+  handleEditRecipe,
+  navigation,
+}: {
+  item: RecipeInterface;
+  HandleDeleteRecipe: Function;
+  handleEditRecipe: Function;
+  navigation: HomeScreenNavigationProps;
+}) => (
+  <TouchableOpacity
+    style={styles.recipeCard}
+    onPress={() => {
+      console.log(item._id)
+      navigation.navigate('ReciepeDetails', {recipeId: item._id});
+    }}>
     <Text style={styles.recipeTitle}>{item.title}</Text>
     <Text style={styles.recipeDescription}>{item.description}</Text>
 
     <View style={styles.recipeFooter}>
-      <Text style={[
-        styles.difficulty,
-        styles[`difficulty_${item.difficulty.toLowerCase()}` as 'difficulty_easy' | 'difficulty_medium' | 'difficulty_hard']
-      ]}>
+      <Text
+        style={[
+          styles.difficulty,
+          styles[
+            `difficulty_${item.difficulty.toLowerCase()}` as
+              | 'difficulty_easy'
+              | 'difficulty_medium'
+              | 'difficulty_hard'
+          ],
+        ]}>
         {item.difficulty}
       </Text>
       <Text style={styles.updatedAt}>
@@ -61,10 +81,14 @@ const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: Recip
     </View>
 
     <View style={styles.actionButtons}>
-      <TouchableOpacity style={styles.actionIcon} onPress={() => handleEditRecipe(item)}>
+      <TouchableOpacity
+        style={styles.actionIcon}
+        onPress={() => handleEditRecipe(item)}>
         <Icon name="pencil-outline" size={20} color="#3b82f6" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.actionIcon} onPress={() => HandleDeleteRecipe({id : item._id})}>
+      <TouchableOpacity
+        style={styles.actionIcon}
+        onPress={() => HandleDeleteRecipe({id: item._id})}>
         <Icon name="trash-outline" size={20} color="#ef4444" />
       </TouchableOpacity>
     </View>
@@ -72,11 +96,13 @@ const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: Recip
 );
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
-  const { token, logout} = useContext(AuthContext);
-  const [isvisible,setIsVisible] = useState(false);
-  const {getRecipes,isLoading,deleteRecipes} = useContext(RecipeContext);
-  const [Recipes,setRecipes] = useState<RecipeInterface[]>([]);
-  const [RecipeToUpdate , setRecipeToUpdate] = useState<RecipeInterface | null>(null);
+  const {token, logout} = useContext(AuthContext);
+  const [isvisible, setIsVisible] = useState(false);
+  const {getRecipes, isLoading, deleteRecipes} = useContext(RecipeContext);
+  const [Recipes, setRecipes] = useState<RecipeInterface[]>([]);
+  const [RecipeToUpdate, setRecipeToUpdate] = useState<RecipeInterface | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!token) {
@@ -96,50 +122,51 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     ]);
   };
 
-  const handleGetReciepe = async () : Promise<void> => {
+  const handleGetReciepe = async (): Promise<void> => {
     const res = await getRecipes();
 
-    if(res.success){
+    if (res.success) {
       setRecipes(res.data);
     }
   };
 
   useEffect(() => {
-
-    if(!isLoading){
+    if (!isLoading) {
       handleGetReciepe();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[isLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
-
-  const HandleDeleteRecipe = async ({id } : {id : string}) => {
-
+  const HandleDeleteRecipe = async ({id}: {id: string}) => {
     console.log(id);
-    Alert.alert('Delete Recipe', 'Are you sure you want to delete this recipe?', [
+    Alert.alert(
+      'Delete Recipe',
+      'Are you sure you want to delete this recipe?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          onPress: async () => {
+            const res = await deleteRecipes(id);
+            console.log(res);
+          },
+        },
+      ],
+    );
+  };
+
+  const handleEditRecipe = async (recipe: RecipeInterface) => {
+    Alert.alert('Edit Recipe', 'Are you sure you want to edit this recipe?', [
       {text: 'Cancel', style: 'cancel'},
       {
-        text: 'Delete',
+        text: 'Edit',
         onPress: async () => {
-          const res = await deleteRecipes(id);
-        console.log(res);
+          setRecipeToUpdate(recipe);
+          setIsVisible(true);
         },
       },
     ]);
-  }
-
-  const handleEditRecipe = async (recipe : RecipeInterface) => {
-   Alert.alert('Edit Recipe', 'Are you sure you want to edit this recipe?', [
-    {text: 'Cancel', style: 'cancel'},
-    {
-      text: 'Edit',
-      onPress: async () => {
-        setRecipeToUpdate(recipe);
-        setIsVisible(true);
-      },
-    },
-   ])
-  }
+  };
   return (
     <View style={styles.container}>
       {/* 🔵 Custom Header */}
@@ -150,7 +177,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
           style={styles.searchInput}
         />
 
-        <TouchableOpacity style={styles.iconButton} onPress={() => setIsVisible(true)}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => setIsVisible(true)}>
           <Icon name="add" size={24} color="#fff" />
         </TouchableOpacity>
 
@@ -160,23 +189,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       </View>
 
       {/* 🔵 Body */}
-    {Recipes.length === 0 && <Text style={styles.noRecipesText}>No recipes found.</Text>}
+      {Recipes.length === 0 && (
+        <Text style={styles.noRecipesText}>No recipes found.</Text>
+      )}
 
       {Recipes && (
-  <FlatList
-    data={Recipes}
-    keyExtractor={(item) => item._id}
-    contentContainerStyle={styles.recipeList}
-    renderItem={({ item }) => (
-      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} handleEditRecipe={handleEditRecipe}  />
-    )}
-  />
-)}
-
+        <FlatList
+          data={Recipes}
+          keyExtractor={item => item._id}
+          contentContainerStyle={styles.recipeList}
+          renderItem={({item}) => (
+            <RenderItem
+              item={item}
+              HandleDeleteRecipe={HandleDeleteRecipe}
+              handleEditRecipe={handleEditRecipe}
+              navigation={navigation}
+            />
+          )}
+        />
+      )}
 
       <Modal
-      visible={isvisible} transparent={true} onRequestClose={() => setIsVisible(false)}>
-        <CreateRecipeForm onCancel={() => setIsVisible(false)} RecipeToUpdate={RecipeToUpdate || undefined} setRecipeToUpdate={setRecipeToUpdate} />
+        visible={isvisible}
+        transparent={true}
+        onRequestClose={() => setIsVisible(false)}>
+        <CreateRecipeForm
+          onCancel={() => setIsVisible(false)}
+          RecipeToUpdate={RecipeToUpdate || undefined}
+          setRecipeToUpdate={setRecipeToUpdate}
+        />
       </Modal>
     </View>
   );
