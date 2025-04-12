@@ -2,6 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, {createContext, useEffect, useState} from 'react';
+import { ActivityIndicator } from 'react-native';
 
 const API_URL = 'http://10.0.2.2:5000';
 
@@ -105,6 +106,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     await AsyncStorage.removeItem('userId');
     setIsAuthenticated(false);
   };
+
+  if(isLoading) return <ActivityIndicator size={'large'} color={'#FF914D'}/>
 
   return (
     <AuthContext.Provider
