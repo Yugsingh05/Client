@@ -36,7 +36,7 @@ interface RecipeInterface {
 __v : number;
 }
 
-const RenderItem = ({ item,HandleDeleteRecipe } : { item: RecipeInterface , HandleDeleteRecipe : Function }) => (
+const RenderItem = ({ item,HandleDeleteRecipe,handleEditRecipe } : { item: RecipeInterface , HandleDeleteRecipe : Function , handleEditRecipe : Function }) => (
   <View style={styles.recipeCard}>
     <Text style={styles.recipeTitle}>{item.title}</Text>
     <Text style={styles.recipeDescription}>{item.description}</Text>
@@ -61,7 +61,7 @@ const RenderItem = ({ item,HandleDeleteRecipe } : { item: RecipeInterface , Hand
     </View>
 
     <View style={styles.actionButtons}>
-      <TouchableOpacity style={styles.actionIcon} onPress={() => console.log('Edit pressed')}>
+      <TouchableOpacity style={styles.actionIcon} onPress={() => handleEditRecipe(item)}>
         <Icon name="pencil-outline" size={20} color="#3b82f6" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.actionIcon} onPress={() => HandleDeleteRecipe({id : item._id})}>
@@ -76,6 +76,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   const [isvisible,setIsVisible] = useState(false);
   const {getRecipes,isLoading,deleteRecipes} = useContext(RecipeContext);
   const [Recipes,setRecipes] = useState<RecipeInterface[]>([]);
+  const [RecipeToUpdate , setRecipeToUpdate] = useState<RecipeInterface | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -108,6 +109,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     if(!isLoading){
       handleGetReciepe();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[isLoading]);
 
 
@@ -123,10 +125,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
         console.log(res);
         },
       },
-    ])
-    
+    ]);
   }
 
+  const handleEditRecipe = async (recipe : RecipeInterface) => {
+   Alert.alert('Edit Recipe', 'Are you sure you want to edit this recipe?', [
+    {text: 'Cancel', style: 'cancel'},
+    {
+      text: 'Edit',
+      onPress: async () => {
+        setRecipeToUpdate(recipe);
+        setIsVisible(true);
+      },
+    },
+   ])
+  }
   return (
     <View style={styles.container}>
       {/* 🔵 Custom Header */}
@@ -160,7 +173,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
     keyExtractor={(item) => item._id}
     contentContainerStyle={styles.recipeList}
     renderItem={({ item }) => (
-      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} />
+      <RenderItem item={item} HandleDeleteRecipe={HandleDeleteRecipe} handleEditRecipe={handleEditRecipe} />
     )}
   />
 )}
@@ -168,7 +181,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
 
       <Modal
       visible={isvisible} transparent={true} onRequestClose={() => setIsVisible(false)}>
-        <CreateRecipeForm onCancel={() => setIsVisible(false)}/>
+        <CreateRecipeForm onCancel={() => setIsVisible(false)} RecipeToUpdate={RecipeToUpdate || undefined}  />
       </Modal>
     </View>
   );
