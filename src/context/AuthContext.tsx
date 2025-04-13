@@ -62,8 +62,19 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       });
 
       console.log('Server response:', res.data);
+  
+      if (!res.data?.success) return false;
 
-      return !!res.data?.success; // cleaner way to return true/false
+      const {token:userToken, userId : userUserId} = res.data;
+
+      await AsyncStorage.setItem('token', userToken);
+      await AsyncStorage.setItem('userId', userUserId);
+
+      setToken(userToken);
+      setUserId(userUserId);
+      setIsAuthenticated(true);
+
+      return true; // cleaner way to return true/false
     } catch (error: any) {
       console.error('Sign up error:', error?.response?.data || error.message);
       return false;
@@ -83,13 +94,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       if (!res.data?.success) return false;
 
-      const {token, userId} = res.data;
+      const {token:userToken, userId : userUserId} = res.data;
 
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('userId', userId);
+      await AsyncStorage.setItem('token', userToken);
+      await AsyncStorage.setItem('userId', userUserId);
 
-      setToken(token);
-      setUserId(userId);
+      setToken(userToken);
+      setUserId(userUserId);
       setIsAuthenticated(true);
 
       return true; // cleaner way to return true/false

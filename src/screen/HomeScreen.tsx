@@ -40,11 +40,13 @@ const RenderItem = ({
   HandleDeleteRecipe,
   handleEditRecipe,
   navigation,
+  userId
 }: {
   item: RecipeInterface;
   HandleDeleteRecipe: Function;
   handleEditRecipe: Function;
   navigation: HomeScreenNavigationProps;
+  userId : string | null
 }) => (
   <TouchableOpacity
     style={styles.recipeCard}
@@ -80,7 +82,9 @@ const RenderItem = ({
       </Text>
     </View>
 
-    <View style={styles.actionButtons}>
+    {
+      userId === item.createdBy && (
+        <View style={styles.actionButtons}>
       <TouchableOpacity
         style={styles.actionIcon}
         onPress={() => handleEditRecipe(item)}>
@@ -92,11 +96,13 @@ const RenderItem = ({
         <Icon name="trash-outline" size={20} color="#ef4444" />
       </TouchableOpacity>
     </View>
+      )
+    }
   </TouchableOpacity>
 );
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
-  const {token, logout} = useContext(AuthContext);
+  const {token, logout,userId} = useContext(AuthContext);
   const [isvisible, setIsVisible] = useState(false);
   const {getRecipes, isLoading, deleteRecipes} = useContext(RecipeContext);
   const [Recipes, setRecipes] = useState<RecipeInterface[]>([]);
@@ -204,6 +210,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
               HandleDeleteRecipe={HandleDeleteRecipe}
               handleEditRecipe={handleEditRecipe}
               navigation={navigation}
+              userId={userId}
             />
           )}
         />
