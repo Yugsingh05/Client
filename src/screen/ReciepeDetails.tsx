@@ -27,6 +27,7 @@ const ReciepeDetails: React.FC<RecipeDetailsProps> = ({ route }) => {
       }
     };
     fetchRecipe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeId]);
 
   if (isLoading || !recipes) {
@@ -38,7 +39,7 @@ const ReciepeDetails: React.FC<RecipeDetailsProps> = ({ route }) => {
     );
   }
 
-  const { recipe, email } = recipes;
+  const { recipe, userName } = recipes;
   const { title, description, difficulty, createdAt } = recipe;
 
   return (
@@ -66,7 +67,7 @@ const ReciepeDetails: React.FC<RecipeDetailsProps> = ({ route }) => {
 
       <View style={styles.card}>
         <Text style={styles.label}>👨‍🍳 Created By</Text>
-        <Text style={styles.text}>{email}</Text>
+        <Text style={styles.text}>{userName}</Text>
       </View>
     </ScrollView>
   );

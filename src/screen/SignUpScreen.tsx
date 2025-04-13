@@ -15,11 +15,15 @@ interface SignUpScreenProps {
 }
 
 const SignUpSchema = Yup.object().shape({
+  userName: Yup.string()
+    .min(3, 'Username must be at least 3 characters')
+    .required('Username is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string()
     .min(6, 'Password must be at least 6 characters')
     .required('Password is required'),
 });
+
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,10 +35,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
-  const handleSignup =async (values: { email: string; password: string }) => {
+  const handleSignup  =async (values: { email: string, password: string ,userName : string}) => {
     console.log(values);
     // TODO: Sign-up logic
-    const success = await signUp(values.email, values.password);
+    const success = await signUp(values.email, values.password,values.userName);
     console.log('sign up response',success);
 
     if (success) {
@@ -56,12 +60,27 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         <Text style={styles.title}>Create Account</Text>
 
         <Formik
-          initialValues={{ email: '', password: '' }}
-          validationSchema={SignUpSchema}
-          onSubmit={handleSignup}
-        >
+  initialValues={{ email: '', password: '', userName: '' }}
+  validationSchema={SignUpSchema}
+  onSubmit={handleSignup}
+>
+
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <>
+
+<TextInput
+  value={values.userName}
+  onChangeText={handleChange('userName')}
+  onBlur={handleBlur('userName')}
+  placeholder="Enter username ..."
+  placeholderTextColor="#aaa"
+  style={styles.input}
+/>
+{touched.userName && errors.userName && (
+  <Text style={styles.errorText}>{errors.userName}</Text>
+)}
+
+
               <TextInput
                 value={values.email}
                 onChangeText={handleChange('email')}

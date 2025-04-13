@@ -16,10 +16,11 @@ export interface Recipe {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   createdBy: string;
   createdAt: string;
-  email : string
+  userName : string
 }
 
 interface getRecipeResponse {
+  [x: string]: any;
   success: boolean;
   recipe: Recipe;
 }

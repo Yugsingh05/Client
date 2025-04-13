@@ -10,7 +10,7 @@ interface AuthContextData {
   token: string | null;
   isLoading: boolean;
   userId: string | null;
-  signUp: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string,userName : string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -52,13 +52,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
-  const signUp = async (email: string, password: string): Promise<boolean> => {
+  const signUp = async (email: string, password: string,userName : string): Promise<boolean> => {
     console.log('Sign up server log:', email, password);
 
     try {
       const res = await axios.post(`${API_URL}/api/auth/register`, {
         email,
         password,
+        userName
+
       });
 
       console.log('Server response:', res.data);
